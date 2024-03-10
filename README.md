@@ -1,5 +1,8 @@
 # Generative AI Training Methods Overview
 
+# Autotrain Advanced
+
+https://github.com/huggingface/autotrain-advanced
 
 # FSDP QLora
 
@@ -13,3 +16,4 @@ https://github.com/AnswerDotAI/fsdp_qlora
 https://www.youtube.com/watch?v=XpoKB3usmKc&t=1s
 
 https://github.com/ShawhinT/YouTube-Blog/tree/main/LLMs/qlora
+
