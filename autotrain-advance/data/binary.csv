@@ -1,0 +1,9 @@
+text,target
+"I am Honza",positive
+"Honza is there",positive
+"Hey, Honza!",positive
+"I know one guy, his name is Honza",positive
+"There is Samuel",negative
+"Hello, I'm Dan",negative
+"Good night, Vendy",negative
+"Hi Ashley",negative
