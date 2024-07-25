@@ -5,7 +5,7 @@ from datasets import load_dataset
 import transformers
 
 # model_name = "TheBloke/deepseek-coder-1.3b-instruct-GPTQ"
-model_name = "openlm-research/open_llama_3b_v2"
+model_name = "./base"
 model = AutoModelForCausalLM.from_pretrained(model_name,
                                              device_map="auto", # automatically figures out how to best use CPU + GPU for loading model
                                              trust_remote_code=False, # prevents running custom model files on your machine
@@ -108,7 +108,7 @@ num_epochs = 10
 
 # define training arguments
 training_args = transformers.TrainingArguments(
-    output_dir= "model",
+    output_dir= "lora",
     learning_rate=lr,
     per_device_train_batch_size=batch_size,
     per_device_eval_batch_size=batch_size,
@@ -139,4 +139,4 @@ trainer.train()
 
 model.config.use_cache = True
 
-# trainer.save_model("model")
+trainer.save_model("lora")
