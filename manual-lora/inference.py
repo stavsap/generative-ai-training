@@ -9,10 +9,13 @@ model = AutoModelForCausalLM.from_pretrained(model_path,
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
-model.eval()
+print(tokenizer.get_chat_template())
 
-inputs = tokenizer('What is the largest animal?', return_tensors="pt")
+# model.eval()
+#
+# inputs = tokenizer('What is the largest animal?', return_tensors="pt")
+#
+# outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"))
+#
+# print(tokenizer.batch_decode(outputs)[0])
 
-outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"))
-
-print(tokenizer.batch_decode(outputs)[0])
