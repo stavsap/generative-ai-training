@@ -1,2 +1,8 @@
 venv
 .idea
+
+manual-lora/base
+manual-lora/llama.cpp
+manual-lora/lora
+manual-lora/merged
+manual-lora/shawgpt-youtube-comments

@@ -20,5 +20,8 @@ cd to merged
 ```shell
 git clone https://github.com/ggerganov/llama.cpp.git
 pip install -r llama.cpp/requirements.txt
-python llama.cpp/convert.py -h
+python llama.cpp/convert_hf_to_gguf.py -h
+python llama.cpp/convert_hf_to_gguf.py merged
+python llama.cpp/convert_lora_to_gguf.py -h
+python llama.cpp/convert_lora_to_gguf.py --base base lora/checkpoint-30
 ```
