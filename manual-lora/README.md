@@ -1,4 +1,6 @@
-# Readme
+# Manual Lora 
+
+Train a lora, convert to gguf and create ollama model.
 
 
 ## Required packages
@@ -27,16 +29,22 @@ Download example data set locally
 git clone https://huggingface.co/datasets/shawhin/shawgpt-youtube-comments
 ```
 
-Convert to gguf files.
+Convert to gguf files (base + adapter).
 
 ```shell
 python llama.cpp/convert_hf_to_gguf.py base
 python llama.cpp/convert_lora_to_gguf.py --base base lora
 ```
 
+Convert merged to gguf file.
+
+```shell
+python llama.cpp/convert_hf_to_gguf.py merged
+```
+
 ## Ollama
 
 ```shell
-ollama create manual -f Modelfile
-ollama run manual
+ollama create manual:1
+ollama run manual:1
 ```

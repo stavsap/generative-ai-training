@@ -1,2 +1,1 @@
-FROM ./base/Base-3.4B-F16.gguf
-ADAPTER ./lora/Lora-F16-LoRA.gguf
+FROM ./merged\Base-3.4B-F16.gguf
