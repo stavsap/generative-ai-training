@@ -2,11 +2,11 @@ from peft import PeftModel,PeftModelForCausalLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-model_name = "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ"
+model_name = "./base"
 # Load the base model
 base_model = AutoModelForCausalLM.from_pretrained(model_name,device_map="cuda", torch_dtype=torch.bfloat16)
 # Load the LoRA model
-peft_model = PeftModelForCausalLM.from_pretrained(base_model, "./model/checkpoint-30", device_map="cuda", torch_dtype=torch.bfloat16)
+peft_model = PeftModelForCausalLM.from_pretrained(base_model, "./lora/checkpoint-30", device_map="cuda", torch_dtype=torch.bfloat16)
 
 # Merge LoRA weights with base model
 # merged_model = peft_model.merge_and_unload()

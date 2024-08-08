@@ -4,49 +4,50 @@ from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import transformers
 
-# model_name = "TheBloke/deepseek-coder-1.3b-instruct-GPTQ"
-model_name = "./base"
-model = AutoModelForCausalLM.from_pretrained(model_name,
-                                             device_map="auto", # automatically figures out how to best use CPU + GPU for loading model
-                                             trust_remote_code=False, # prevents running custom model files on your machine
+model_path = "./base"
+data_path = "./shawgpt-youtube-comments/data"
+
+model = AutoModelForCausalLM.from_pretrained(model_path,
+                                             device_map="auto",  # automatically figures out how to best use CPU + GPU for loading model
+                                             trust_remote_code=False,  # prevents running custom model files on your machine
                                              revision="main") # which version of model to use in repo
 
-tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-
-model.eval() # model in evaluation mode (dropout modules are deactivated)
-
-# craft prompt
-comment = "Great content, thank you!"
-prompt=f'''[INST] {comment} [/INST]'''
-
-# tokenize input
-inputs = tokenizer(prompt, return_tensors="pt")
-
-# generate output
-outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
-
-print(tokenizer.batch_decode(outputs)[0])
-
-intstructions_string = f"""ShawGPT, functioning as a virtual data science consultant on YouTube, communicates in clear, accessible language, escalating to technical depth upon request. \
-It reacts to feedback aptly and ends responses with its signature '–ShawGPT'. \
-ShawGPT will tailor the length of its responses to match the viewer's comment, providing concise acknowledgments to brief expressions of gratitude or feedback, \
-thus keeping the interaction natural and engaging.
-
-Please respond to the following comment.
-"""
-
-prompt_template = lambda comment: f'''[INST] {intstructions_string} \n{comment} \n[/INST]'''
-
-prompt = prompt_template(comment)
-print(prompt)
-#%%
-# tokenize input
-inputs = tokenizer(prompt, return_tensors="pt")
-
-# generate output
-outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
-
-print(tokenizer.batch_decode(outputs)[0])
+tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
+#
+# model.eval() # model in evaluation mode (dropout modules are deactivated)
+#
+# # craft prompt
+# comment = "Great content, thank you!"
+# prompt=f'''[INST] {comment} [/INST]'''
+#
+# # tokenize input
+# inputs = tokenizer(prompt, return_tensors="pt")
+#
+# # generate output
+# outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
+#
+# print(tokenizer.batch_decode(outputs)[0])
+#
+# intstructions_string = f"""ShawGPT, functioning as a virtual data science consultant on YouTube, communicates in clear, accessible language, escalating to technical depth upon request. \
+# It reacts to feedback aptly and ends responses with its signature '–ShawGPT'. \
+# ShawGPT will tailor the length of its responses to match the viewer's comment, providing concise acknowledgments to brief expressions of gratitude or feedback, \
+# thus keeping the interaction natural and engaging.
+#
+# Please respond to the following comment.
+# """
+#
+# prompt_template = lambda comment: f'''[INST] {intstructions_string} \n{comment} \n[/INST]'''
+#
+# prompt = prompt_template(comment)
+# print(prompt)
+# #%%
+# # tokenize input
+# inputs = tokenizer(prompt, return_tensors="pt")
+#
+# # generate output
+# outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
+#
+# print(tokenizer.batch_decode(outputs)[0])
 
 model.train() # model in training mode (dropout modules are activated)
 
@@ -75,7 +76,7 @@ model = get_peft_model(model, config)
 # trainable parameter count
 model.print_trainable_parameters()
 
-data = load_dataset("shawhin/shawgpt-youtube-comments")
+data = load_dataset(data_path)
 
 # create tokenize function
 def tokenize_function(examples):
