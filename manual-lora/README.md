@@ -1,12 +1,22 @@
 # Readme
 
 
+## Required packages
+
+Cuda support:
+
+```shell
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip install peft datasets bitsandbytes
+```
+
 ## Download Data Set form hugging face
 
-Install large file system support for git
+Install Large File Storage support for git.
+
+Then initialize it:
 ```shell
 git lfs install
-
 ```
 
 Download example data set locally
@@ -15,13 +25,13 @@ Download example data set locally
 git clone https://huggingface.co/datasets/shawhin/shawgpt-youtube-comments
 ```
 
-cd to merged
-
+Setup llama.cpp to be able to convert to gguf files.
 ```shell
 git clone https://github.com/ggerganov/llama.cpp.git
 pip install -r llama.cpp/requirements.txt
 python llama.cpp/convert_hf_to_gguf.py -h
 python llama.cpp/convert_hf_to_gguf.py merged
 python llama.cpp/convert_lora_to_gguf.py -h
-python llama.cpp/convert_lora_to_gguf.py --base base lora/checkpoint-30
+python llama.cpp/convert_lora_to_gguf.py --base base lora
 ```
+
