@@ -27,11 +27,16 @@ Download example data set locally
 git clone https://huggingface.co/datasets/shawhin/shawgpt-youtube-comments
 ```
 
-Setup llama.cpp to be able to convert to gguf files.
+Convert to gguf files.
+
 ```shell
-python llama.cpp/convert_hf_to_gguf.py -h
-python llama.cpp/convert_hf_to_gguf.py merged
-python llama.cpp/convert_lora_to_gguf.py -h
+python llama.cpp/convert_hf_to_gguf.py base
 python llama.cpp/convert_lora_to_gguf.py --base base lora
 ```
 
+## Ollama
+
+```shell
+ollama create manual -f Modelfile
+ollama run manual
+```
