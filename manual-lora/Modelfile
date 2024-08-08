@@ -7,3 +7,4 @@ SYSTEM """A chat between a curious user and an artificial intelligence assistant
 PARAMETER stop "User:"
 PARAMETER stop "Assistant:"
 PARAMETER stop "System:"
+PARAMETER stop </s>
