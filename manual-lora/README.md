@@ -39,7 +39,7 @@ python llama.cpp/convert_lora_to_gguf.py --base base lora
 Convert merged to gguf file.
 
 ```shell
-python llama.cpp/convert_hf_to_gguf.py --outtype q8_0 base2
+python llama.cpp/convert_hf_to_gguf.py --outtype q8_0 base
 ```
 
 ## Ollama
