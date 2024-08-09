@@ -6,20 +6,20 @@ model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trus
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
-# chat = [
-#    {"role": "user", "content": "What is art?"},
-#    {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
-#    {"role": "user", "content": "I'd like to show off how chat templating works!"},
-#    {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
-#    {"role": "user", "content": "I'd like to show off how chat templating works!"},
-# ]
-#
+chat = [
+   {"role": "user", "content": "What is art?"},
+   # {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
+   # {"role": "user", "content": "I'd like to show off how chat templating works!"},
+   # {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
+   # {"role": "user", "content": "I'd like to show off how chat templating works!"},
+]
+
 # print(tokenizer.apply_chat_template(chat, tokenize=False))
-#
-#
+
+
 # print(tokenizer.get_chat_template())
 
-# model.eval()
+model.eval()
 
 input_text = "Write me a poem about Machine Learning."
 

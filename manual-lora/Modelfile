@@ -1,18 +1,10 @@
-FROM ./base/Base-2.6B-Q8_0.gguf
+FROM ./base/Base-2.6B-F16.gguf
 
-TEMPLATE """{{- range $i, $_ := .Messages }}
-{{- $last := eq (len (slice $.Messages $i)) 1 }}
-{{- if or (eq .Role "user") (eq .Role "system") }}<start_of_turn>user
-{{ .Content }}<end_of_turn>
-{{ if $last }}<start_of_turn>model
-{{ end }}
-{{- else if eq .Role "assistant" }}<start_of_turn>model
-{{ .Content }}{{ if not $last }}<end_of_turn>
-{{ end }}
-{{- end }}
-{{- end }}"""
+TEMPLATE """<start_of_turn>user
+{{ if .System }}{{ .System }} {{ end }}{{ .Prompt }}<end_of_turn>
+<start_of_turn>model
+{{ .Response }}<end_of_turn>
+"""
 
-PARAMETER stop "<start_of_turn>"
-PARAMETER stop "<end_of_turn>"
-
-SYSTEM "you are an assistant"
+PARAMETER stop <start_of_turn>
+PARAMETER stop <end_of_turn>

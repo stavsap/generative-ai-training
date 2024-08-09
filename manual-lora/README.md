@@ -32,7 +32,7 @@ git clone https://huggingface.co/datasets/shawhin/shawgpt-youtube-comments
 Convert to gguf files (base + adapter).
 
 ```shell
-python llama.cpp/convert_hf_to_gguf.py base2
+python llama.cpp/convert_hf_to_gguf.py base
 python llama.cpp/convert_lora_to_gguf.py --base base lora
 ```
 
