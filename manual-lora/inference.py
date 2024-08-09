@@ -6,29 +6,26 @@ model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trus
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
+# https://huggingface.co/docs/transformers/main/en/chat_templating
+
 chat = [
-   {"role": "user", "content": "What is art?"},
-   # {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
-   # {"role": "user", "content": "I'd like to show off how chat templating works!"},
-   # {"role": "assistant", "content": "I'm doing great. How can I help you today?"},
-   # {"role": "user", "content": "I'd like to show off how chat templating works!"},
+    {"role": "user", "content": "What is art?"},
+    {"role": "assistant", "content": "It is whatever you want it to be"},
 ]
 
-# print(tokenizer.apply_chat_template(chat, tokenize=False))
-
+print(tokenizer.apply_chat_template(chat, tokenize=False))
 
 # print(tokenizer.get_chat_template())
 
 model.eval()
 
-input_text = "Write me a poem about Machine Learning."
+input_text = "Write me a poem about Machine Learning"
 
 input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 
-outputs = model.generate(**input_ids, max_new_tokens=250)
+outputs = model.generate(**input_ids, max_new_tokens=500)
 
-print(tokenizer.decode(outputs[0]))
-
+print(tokenizer.decode(outputs[0], clean_up_tokenization_spaces=True, skip_special_tokens=True))
 
 # import torch
 # from transformers import pipeline
