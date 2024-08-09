@@ -1,59 +1,24 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import prepare_model_for_kbit_training
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 import transformers
 
 model_path = "./base"
-data_path = "./shawgpt-youtube-comments/data"
+data_path = "./data"
+target_lora_path = "lora"
 
 model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False, revision="main")
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
-# model.eval() # model in evaluation mode (dropout modules are deactivated)
-#
-# # craft prompt
-# comment = "Great content, thank you!"
-# prompt=f'''[INST] {comment} [/INST]'''
-#
-# # tokenize input
-# inputs = tokenizer(prompt, return_tensors="pt")
-#
-# # generate output
-# outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
-#
-# print(tokenizer.batch_decode(outputs)[0])
-#
-# intstructions_string = f"""ShawGPT, functioning as a virtual data science consultant on YouTube, communicates in clear, accessible language, escalating to technical depth upon request. \
-# It reacts to feedback aptly and ends responses with its signature '–ShawGPT'. \
-# ShawGPT will tailor the length of its responses to match the viewer's comment, providing concise acknowledgments to brief expressions of gratitude or feedback, \
-# thus keeping the interaction natural and engaging.
-#
-# Please respond to the following comment.
-# """
-#
-# prompt_template = lambda comment: f'''[INST] {intstructions_string} \n{comment} \n[/INST]'''
-#
-# prompt = prompt_template(comment)
-# print(prompt)
-# #%%
-# # tokenize input
-# inputs = tokenizer(prompt, return_tensors="pt")
-#
-# # generate output
-# outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=140)
-#
-# print(tokenizer.batch_decode(outputs)[0])
-
-model.train() # model in training mode (dropout modules are activated)
+model.train()  # model in training mode (dropout modules are activated)
 
 # enable gradient check pointing
 model.gradient_checkpointing_enable()
 
 # enable quantized training
-model = prepare_model_for_kbit_training(model)
-#%%
+# model = prepare_model_for_kbit_training(model)
+
 # LoRA config
 config = LoraConfig(
     r=8,
@@ -62,7 +27,6 @@ config = LoraConfig(
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
-
 )
 
 config.inference_mode = False
@@ -137,4 +101,4 @@ trainer.train()
 
 model.config.use_cache = True
 
-trainer.save_model("lora")
+trainer.save_model(target_lora_path)

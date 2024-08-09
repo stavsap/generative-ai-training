@@ -2,6 +2,7 @@ venv
 .idea
 
 manual-lora/base
+manual-lora/data
 manual-lora/llama.cpp
 manual-lora/lora
 manual-lora/merged
