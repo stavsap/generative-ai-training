@@ -7,13 +7,10 @@ import transformers
 model_path = "./base"
 data_path = "./shawgpt-youtube-comments/data"
 
-model = AutoModelForCausalLM.from_pretrained(model_path,
-                                             device_map="cuda",  # automatically figures out how to best use CPU + GPU for loading model
-                                             trust_remote_code=False,  # prevents running custom model files on your machine
-                                             revision="main") # which version of model to use in repo
+model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False, revision="main")
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
-#
+
 # model.eval() # model in evaluation mode (dropout modules are deactivated)
 #
 # # craft prompt
