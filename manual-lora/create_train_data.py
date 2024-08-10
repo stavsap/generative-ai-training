@@ -1,13 +1,9 @@
 import os
 import random
-
 import pandas as pd
-from transformers import AutoTokenizer
 
-model_path = "./base"
 data_target_path = "./data"
 num_samples = 1000
-
 
 def create_folder(path):
     """
@@ -55,30 +51,16 @@ def get_random_entry() -> (str, str):
     ]
     return random.choice(qa_pairs)
 
-
-tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
-
-# https://huggingface.co/docs/transformers/main/en/chat_templating
-
 # The rest of the code remains the same
 
 # Generate dataset
 questions = []
 answers = []
-examples = []
 
 for _ in range(num_samples):
     q, a = get_random_entry()
     questions.append(q)
     answers.append(a)
-
-    chat = [
-        {"role": "user", "content": q},
-        {"role": "assistant", "content": a},
-    ]
-
-    example = tokenizer.apply_chat_template(chat, tokenize=False)
-    examples.append(example)
 
 # Create DataFrame
 df = pd.DataFrame({
@@ -86,13 +68,8 @@ df = pd.DataFrame({
     'answer': answers
 })
 
-dfEx = pd.DataFrame({
-    'example': examples,
-})
-
 # Save as Parquet file
-df.to_parquet(data_target_path+'/qa.parquet')
-dfEx.to_parquet(data_target_path+'/examples.parquet')
+df.to_parquet(data_target_path+'/train.parquet')
 
 # Read back the Parquet file to verify
 # read_df = pd.read_parquet('biology_qa_dataset.parquet')

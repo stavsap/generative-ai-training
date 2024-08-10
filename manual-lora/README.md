@@ -9,7 +9,7 @@ Cuda support:
 
 ```shell
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-pip install peft datasets bitsandbytes optimum auto-gptq
+pip install peft datasets bitsandbytes optimum trl auto-gptq
 git clone https://github.com/ggerganov/llama.cpp.git
 pip install -r llama.cpp/requirements.txt
 ```
