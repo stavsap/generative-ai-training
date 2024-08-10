@@ -1,13 +1,19 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, Trainer, TrainingArguments, DataCollatorForLanguageModeling
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from datasets import load_dataset
-import transformers
 
 model_path = "./base"
-data_path = "./data"
+data_path = "./shawgpt-youtube-comments/data"
 target_lora_path = "lora"
 
-model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False, revision="main")
+quantize_config = BitsAndBytesConfig(load_in_8bit=True)
+# quantize_config = None
+
+model = AutoModelForCausalLM.from_pretrained(model_path,
+                                             device_map="auto",
+                                             trust_remote_code=False,
+                                             revision="main",
+                                             quantization_config=quantize_config)
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
@@ -17,7 +23,7 @@ model.train()  # model in training mode (dropout modules are activated)
 model.gradient_checkpointing_enable()
 
 # enable quantized training
-# model = prepare_model_for_kbit_training(model)
+model = prepare_model_for_kbit_training(model)
 
 # LoRA config
 config = LoraConfig(
@@ -61,7 +67,7 @@ tokenized_data = data.map(tokenize_function, batched=True)
 # setting pad token
 tokenizer.pad_token = tokenizer.eos_token
 # data collator
-data_collator = transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False)
+data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
 
 # hyperparameters
 lr = 2e-4
@@ -69,7 +75,7 @@ batch_size = 4
 num_epochs = 10
 
 # define training arguments
-training_args = transformers.TrainingArguments(
+training_args = TrainingArguments(
     output_dir= "lora",
     learning_rate=lr,
     per_device_train_batch_size=batch_size,
@@ -84,11 +90,10 @@ training_args = transformers.TrainingArguments(
     warmup_steps=2,
     fp16=False,
     optim="paged_adamw_8bit",
-
 )
 
 # configure trainer
-trainer = transformers.Trainer(
+trainer = Trainer(
     model=model,
     train_dataset=tokenized_data["train"],
     eval_dataset=tokenized_data["test"],
@@ -96,9 +101,6 @@ trainer = transformers.Trainer(
     data_collator=data_collator
 )
 
-model.config.use_cache = True  # silence the warnings. Please re-enable for inference!
 trainer.train()
-
-model.config.use_cache = True
-
 trainer.save_model(target_lora_path)
+tokenizer.save_pretrained(target_lora_path)

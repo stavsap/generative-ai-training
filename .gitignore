@@ -5,6 +5,6 @@ manual-lora/base
 manual-lora/data
 manual-lora/llama.cpp
 manual-lora/lora
-manual-lora/fine_tuned_path
+manual-lora/trained
 manual-lora/merged
 manual-lora/shawgpt-youtube-comments

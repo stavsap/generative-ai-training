@@ -42,7 +42,14 @@ dataset = {
 
 ds = Dataset.from_dict(dataset)
 
-model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False, revision="main")
+
+model = AutoModelForCausalLM.from_pretrained(model_path,
+                                             device_map="cuda",
+                                             trust_remote_code=False,
+                                             revision="main")
+
+
+tokenizer.pad_token = tokenizer.eos_token
 
 args = TrainingArguments(
     per_device_train_batch_size=2,
@@ -61,5 +68,7 @@ trainer = SFTTrainer(model=model,
                      dataset_text_field="text",
                      train_dataset=ds)
 
+
 trainer.train()
 model.save_pretrained(fine_tuned_path)
+tokenizer.save_pretrained(fine_tuned_path)
