@@ -1,10 +1,10 @@
 venv
 .idea
 
-manual-lora/base
-manual-lora/data
-manual-lora/llama.cpp
-manual-lora/lora
-manual-lora/trained
-manual-lora/merged
-manual-lora/shawgpt-youtube-comments
+transformers/base
+transformers/data
+transformers/llama.cpp
+transformers/lora
+transformers/trained
+transformers/merged
+transformers/shawgpt-youtube-comments
