@@ -2,8 +2,8 @@ from peft import PeftModelForCausalLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 model_name = "./base"
-lora_name = "./lora/checkpoint-30"
-target = "merged"
+lora_name = "./lora"
+target = "./merged"
 
 # Load the base model
 # base_model = AutoModelForCausalLM.from_pretrained(model_name, device_map="cuda", torch_dtype=torch.bfloat16)

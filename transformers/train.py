@@ -1,46 +1,13 @@
-import pandas as pd
-from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
 from trl import SFTTrainer
+from datasets import load_dataset
 
 model_path = "./base"
 fine_tuned_path = "./trained"
-data_path = "./data/train.parquet"
+data_path = "./data"
 
-
-def load_data_frame(dp):
-    return pd.read_parquet(dp)
-
-
-def create_conversation(sample):
-    user_message = sample["question"]
-    assistant_replay = sample["answer"]
-
-    return {
-        "messages": [
-            {"role": "system", "content": "you are an ai assistant"},
-            {"role": "user", "content": user_message},
-            {"role": "assistant", "content": assistant_replay},
-        ]
-    }
 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
-
-df = load_data_frame(data_path)
-
-df['conversion'] = df.apply(create_conversation, axis=1)
-
-# https://huggingface.co/docs/transformers/main/en/chat_templating
-text_samples = df['conversion'].apply(lambda x: tokenizer.apply_chat_template(x['messages'],
-                                                                              tokenize=False,
-                                                                              add_generation_prompt=True,
-                                                                              return_tensors="pt"))
-
-dataset = {
-    "text": [t for t in text_samples],
-}
-
-ds = Dataset.from_dict(dataset)
 
 
 model = AutoModelForCausalLM.from_pretrained(model_path,
@@ -49,13 +16,33 @@ model = AutoModelForCausalLM.from_pretrained(model_path,
                                              revision="main")
 
 
+data = load_dataset(data_path)
+
+# create tokenize function
+def tokenize_function(examples):
+    # extract text
+    text = examples["example"]
+
+    #tokenize and truncate text
+    # tokenizer.truncation_side = "left"
+    tokenized_inputs = tokenizer(
+        text,
+        truncation=True,
+        padding="max_length"
+    )
+
+    return tokenized_inputs
+
+# tokenize training and validation datasets
+tokenized_data = data.map(tokenize_function, batched=True)
+
 tokenizer.pad_token = tokenizer.eos_token
 
 args = TrainingArguments(
     per_device_train_batch_size=2,
     gradient_accumulation_steps=4,
     warmup_steps=10,
-    max_steps=60,
+    max_steps=260,
     logging_steps=1,
     output_dir="trained",
     optim="adamw_8bit",
@@ -66,8 +53,9 @@ trainer = SFTTrainer(model=model,
                      tokenizer=tokenizer,
                      args=args,
                      dataset_text_field="text",
-                     train_dataset=ds)
-
+                     train_dataset=tokenized_data["train"],
+                     eval_dataset=tokenized_data["test"],
+                     )
 
 trainer.train()
 model.save_pretrained(fine_tuned_path)

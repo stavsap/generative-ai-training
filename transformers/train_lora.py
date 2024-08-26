@@ -3,8 +3,8 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from datasets import load_dataset
 
 model_path = "./base"
-data_path = "./shawgpt-youtube-comments/data"
-target_lora_path = "lora"
+data_path = "./data"
+target_lora_path = "./lora"
 
 quantize_config = BitsAndBytesConfig(load_in_8bit=True)
 # quantize_config = None
@@ -51,12 +51,11 @@ def tokenize_function(examples):
     text = examples["example"]
 
     #tokenize and truncate text
-    tokenizer.truncation_side = "left"
+    # tokenizer.truncation_side = "left"
     tokenized_inputs = tokenizer(
         text,
-        return_tensors="np",
         truncation=True,
-        max_length=512
+        padding="max_length"
     )
 
     return tokenized_inputs

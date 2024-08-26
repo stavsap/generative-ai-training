@@ -1,6 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_path = "./base"
+model_path = "./trained"
 
 model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False, revision="main")
 
@@ -19,7 +19,7 @@ print(tokenizer.apply_chat_template(chat, tokenize=False))
 
 model.eval()
 
-input_text = "Write me a poem about Machine Learning"
+input_text = "Write me a poem about Dell Technologies"
 
 input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 

@@ -1,9 +1,12 @@
 import os
-import random
 import pandas as pd
 
-data_target_path = "./data"
-num_samples = 1000
+from datasets import Dataset
+from transformers import AutoTokenizer
+
+source_data ="./data_raw"
+target_data = "./data"
+model_path = "./base"
 
 def create_folder(path):
     """
@@ -27,55 +30,47 @@ def create_folder(path):
     print(f"Creating new folder at {path}...")
     os.makedirs(path, exist_ok=True)
 
+create_folder(target_data)
 
-create_folder(data_target_path)
+def load_data_frame(dp):
+    return pd.read_parquet(dp)
 
-def get_random_entry() -> (str, str):
-    qa_pairs = [
-        ("What is the function of DNA?",
-         """DNA (Deoxyribonucleic Acid) has several key functions:
-         1. Storage of genetic information
-         2. Transmission of genetic information to offspring
-         3. Directing the synthesis of proteins
-         4. Regulation of gene expression
-         DNA's structure allows it to replicate and pass on genetic traits."""),
+def create_conversation2(sample):
+    user_message = sample["question"]
+    assistant_replay = sample["answer"]
+    return f'''<s>[INST]{user_message}[/INST] {assistant_replay}</s>'''
 
-        ("How does photosynthesis work?",
-         """Photosynthesis is a complex process that can be summarized in these steps:
-         1. Light absorption by chlorophyll
-         2. Excitation of electrons in chlorophyll
-         3. Electron transport chain and ATP production
-         4. Carbon fixation in the Calvin cycle
-         5. Production of glucose from CO2 and water
-         This process converts light energy into chemical energy stored in glucose.""")
-    ]
-    return random.choice(qa_pairs)
+def create_conversation(sample):
+    user_message = sample["question"]
+    assistant_replay = sample["answer"]
 
-# The rest of the code remains the same
+    return {
+        "messages": [
+            # {"role": "system", "content": "you are an ai assistant"},
+            {"role": "user", "content": user_message},
+            {"role": "assistant", "content": assistant_replay},
+        ]
+    }
 
-# Generate dataset
-questions = []
-answers = []
+def prep(source_path, target_path, tokenizer):
+    df = load_data_frame(source_path)
+    df['conversion'] = df.apply(create_conversation2, axis=1)
 
-for _ in range(num_samples):
-    q, a = get_random_entry()
-    questions.append(q)
-    answers.append(a)
+    # https://huggingface.co/docs/transformers/main/en/chat_templating
+    # text_samples = df['conversion'].apply(lambda x: tokenizer.apply_chat_template(x['messages'],
+    #                                                                               tokenize=False,
+    #                                                                               add_generation_prompt=True,
+    #                                                                               return_tensors="pt"))
+    text_samples = df['conversion']
+    test_ds = {
+        "example": [t for t in text_samples],
+    }
 
-# Create DataFrame
-df = pd.DataFrame({
-    'question': questions,
-    'answer': answers
-})
+    test_data_set = Dataset.from_dict(test_ds)
+    test_data_set.to_parquet(target_path)
 
-# Save as Parquet file
-df.to_parquet(data_target_path+'/train.parquet')
+tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-# Read back the Parquet file to verify
-# read_df = pd.read_parquet('biology_qa_dataset.parquet')
-
-# # Display first few rows
-# print(read_df.head())
-#
-# # Display info about the dataset
-# print(read_df.info())
+for root, dirs, files in os.walk(source_data, topdown=True):
+    for file in files:
+        prep(os.path.join(root, file), os.path.join(target_data, file), tokenizer)
