@@ -8,6 +8,8 @@ source_data ="./data_raw"
 target_data = "./data"
 model_path = "./base"
 
+tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
+
 def create_folder(path):
     """
     Create a folder if it doesn't exist, otherwise delete it and its contents.
@@ -38,7 +40,8 @@ def load_data_frame(dp):
 def create_conversation2(sample):
     user_message = sample["question"]
     assistant_replay = sample["answer"]
-    return f'''<s>[INST]{user_message}[/INST] {assistant_replay}</s>'''
+    # return f'''<s>[INST]{user_message}[/INST] {assistant_replay}</s>'''
+    return f'''{user_message} {assistant_replay}'''
 
 def create_conversation(sample):
     user_message = sample["question"]
@@ -54,22 +57,20 @@ def create_conversation(sample):
 
 def prep(source_path, target_path, tokenizer):
     df = load_data_frame(source_path)
-    df['conversion'] = df.apply(create_conversation2, axis=1)
+    df['conversion'] = df.apply(create_conversation, axis=1)
 
     # https://huggingface.co/docs/transformers/main/en/chat_templating
-    # text_samples = df['conversion'].apply(lambda x: tokenizer.apply_chat_template(x['messages'],
-    #                                                                               tokenize=False,
-    #                                                                               add_generation_prompt=True,
-    #                                                                               return_tensors="pt"))
-    text_samples = df['conversion']
+    text_samples = df['conversion'].apply(lambda x: tokenizer.apply_chat_template(x['messages'],
+                                                                                  tokenize=False,
+                                                                                  add_generation_prompt=True,
+                                                                                  return_tensors="pt"))
+    # text_samples = df['conversion']
     test_ds = {
         "example": [t for t in text_samples],
     }
 
     test_data_set = Dataset.from_dict(test_ds)
     test_data_set.to_parquet(target_path)
-
-tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 for root, dirs, files in os.walk(source_data, topdown=True):
     for file in files:

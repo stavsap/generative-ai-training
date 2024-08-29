@@ -9,12 +9,8 @@ data_path = "./data"
 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-
-model = AutoModelForCausalLM.from_pretrained(model_path,
-                                             device_map="cuda",
-                                             trust_remote_code=False,
+model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cuda", trust_remote_code=False,
                                              revision="main")
-
 
 data = load_dataset(data_path)
 
@@ -24,7 +20,7 @@ def tokenize_function(examples):
     text = examples["example"]
 
     #tokenize and truncate text
-    # tokenizer.truncation_side = "left"
+    tokenizer.truncation_side = "left"
     tokenized_inputs = tokenizer(
         text,
         truncation=True,
@@ -35,16 +31,17 @@ def tokenize_function(examples):
 
 # tokenize training and validation datasets
 tokenized_data = data.map(tokenize_function, batched=True)
-
+tokenized_data = data
+# tokenized_data = data
 tokenizer.pad_token = tokenizer.eos_token
 
 args = TrainingArguments(
-    per_device_train_batch_size=2,
+    per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     warmup_steps=10,
-    max_steps=260,
+    max_steps=20,
     logging_steps=1,
-    output_dir="trained",
+    output_dir=fine_tuned_path,
     optim="adamw_8bit",
     seed=42
 )
@@ -52,7 +49,7 @@ args = TrainingArguments(
 trainer = SFTTrainer(model=model,
                      tokenizer=tokenizer,
                      args=args,
-                     dataset_text_field="text",
+                     dataset_text_field="example",
                      train_dataset=tokenized_data["train"],
                      eval_dataset=tokenized_data["test"],
                      )

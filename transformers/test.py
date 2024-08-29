@@ -1,30 +1,50 @@
-import torch
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from trl import SFTTrainer
+from transformers import AutoTokenizer
+from transformers import AutoModelForSequenceClassification
+import numpy as np
+import evaluate
+from transformers import TrainingArguments, Trainer
 
-modelID = "./base"
+# From: https://huggingface.co/docs/transformers/training
 
-dataset = load_dataset("timdettmers/openassistant-guanaco", split="train")
+# Model: https://huggingface.co/google-bert/bert-base-cased
+model_path = "google-bert/bert-base-cased"
 
-quantizationConfig = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.float16,
-    bnb_4bit_quant_type="nf4"
+# DB: https://huggingface.co/datasets/Yelp/yelp_review_full
+data_path = "yelp_review_full"
+
+fine_tuned_path = "./trained"
+
+dataset = load_dataset(data_path)
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+metric = evaluate.load("accuracy")
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)
+
+def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True)
+
+tokenized_datasets = dataset.map(tokenize_function, batched=True)
+
+model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=5)
+
+small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
+
+training_args = TrainingArguments(output_dir=fine_tuned_path, eval_strategy="epoch")
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=small_train_dataset,
+    eval_dataset=small_eval_dataset,
+    compute_metrics=compute_metrics,
 )
 
-model = AutoModelForCausalLM.from_pretrained(modelID)
-
-tokenizer = AutoTokenizer.from_pretrained(modelID)
-tokenizer.add_special_tokens({'pad_token': '<PAD>'})
-
-trainer = SFTTrainer(
-        model=model,
-        train_dataset=dataset,
-        dataset_text_field="text",
-        max_seq_length=512,
-        tokenizer=tokenizer,
-        packing=True,
-    )
-
 trainer.train()
+
+tokenizer.save_pretrained(fine_tuned_path)

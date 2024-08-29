@@ -15,11 +15,11 @@ chat = [
 
 print(tokenizer.apply_chat_template(chat, tokenize=False))
 
-# print(tokenizer.get_chat_template())
+print(tokenizer.get_chat_template())
 
 model.eval()
 
-input_text = "Write me a poem about Dell Technologies"
+input_text = "What is Light?"
 
 input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 
