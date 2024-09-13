@@ -5,7 +5,7 @@ load_dotenv()
 
 model_path = os.getenv('BASE_MODEL')
 
-quantize_config = BitsAndBytesConfig(load_in_8bit=True)
+quantize_config = BitsAndBytesConfig(load_in_4bit=True)
 
 model = AutoModelForCausalLM.from_pretrained(model_path,
                                              device_map="cuda",
@@ -32,7 +32,7 @@ input_text = "What is Light?"
 
 input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 print("generating...")
-outputs = model.generate(**input_ids, max_new_tokens=500)
+outputs = model.generate(**input_ids, max_new_tokens=256)
 
 print(tokenizer.decode(outputs[0], clean_up_tokenization_spaces=True, skip_special_tokens=True))
 
