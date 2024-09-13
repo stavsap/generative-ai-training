@@ -8,3 +8,4 @@ transformers/lora
 transformers/trained
 transformers/merged
 transformers/shawgpt-youtube-comments
+transformers/.env

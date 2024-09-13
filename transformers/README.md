@@ -1,7 +1,9 @@
-# Manual Lora 
+# Fine-Tuning using the transformers packages.
 
-Train a lora, convert to gguf and create ollama model.
-
+Fine-tune:
+- full
+- lora
+- qlora
 
 ## Required packages
 
@@ -9,7 +11,7 @@ Dependencies install support:
 
 ```shell
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-pip install peft datasets bitsandbytes optimum trl python-dotenv
+pip install peft datasets bitsandbytes optimum trl python-dotenv evaluate
 ```
 
 CPP lib to convert to GGUF
