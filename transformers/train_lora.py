@@ -8,9 +8,11 @@ load_dotenv()
 model_path =  os.getenv('BASE_MODEL')
 data_path = "./data"
 target_lora_path = "./lora"
+qlora = False
+quantize_config = None
 
-quantize_config = BitsAndBytesConfig(load_in_8bit=True)
-# quantize_config = None
+if qlora:
+    quantize_config = BitsAndBytesConfig(load_in_8bit=True)
 
 model = AutoModelForCausalLM.from_pretrained(model_path,
                                              device_map="auto",
@@ -78,7 +80,7 @@ num_epochs = 10
 
 # define training arguments
 training_args = TrainingArguments(
-    output_dir= "lora",
+    output_dir= target_lora_path,
     learning_rate=lr,
     per_device_train_batch_size=batch_size,
     per_device_eval_batch_size=batch_size,
