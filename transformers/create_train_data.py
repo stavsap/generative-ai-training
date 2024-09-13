@@ -77,4 +77,6 @@ def prep(source_path, target_path, tokenizer):
 
 for root, dirs, files in os.walk(source_data, topdown=True):
     for file in files:
+        if file == ".keep":
+            continue
         prep(os.path.join(root, file), os.path.join(target_data, file), tokenizer)

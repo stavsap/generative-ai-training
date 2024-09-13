@@ -1,22 +1,19 @@
 from huggingface_hub import snapshot_download
+from dotenv import load_dotenv
 import os
+# Load environment variables from .env file
+load_dotenv()
 
 token = os.getenv('HF_TOKEN')
-target_dir = 'base'
-# model_repo_id = "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ"
-# model_repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-# model_repo_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-# model_repo_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-model_repo_id = "google/gemma-2-2b-it"
-model_repo_id = "google/gemma-2-9b-it"
-model_repo_id = "google/gemma-2-27b-it"
+
+models =["meta-llama/Meta-Llama-3.1-8B-Instruct", "mistralai/Mistral-7B-Instruct-v0.3", "google/gemma-2-2b-it","google/gemma-2-9b-it","TheBloke/Mistral-7B-Instruct-v0.2-GPTQ"]
 
 if token is "":
     token = None
 
-snapshot_download(repo_id=model_repo_id,
-                  local_dir=target_dir,
-                  local_dir_use_symlinks=False,
-                  revision="main",
-                  token=token)
+for model in models:
+    snapshot_download(repo_id=model,
+                      local_dir_use_symlinks=False,
+                      revision="main",
+                      token=token)
 
