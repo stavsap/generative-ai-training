@@ -3,10 +3,13 @@ import pandas as pd
 
 from datasets import Dataset
 from transformers import AutoTokenizer
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
 
+model_path = os.getenv('BASE_MODEL')
 source_data ="./data_raw"
 target_data = "./data"
-model_path = "./base"
 
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 

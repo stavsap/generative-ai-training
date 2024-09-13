@@ -1,7 +1,11 @@
 from peft import PeftModelForCausalLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env file
+load_dotenv()
 
-model_name = "./base"
+model_name = os.getenv('BASE_MODEL')
 lora_name = "./lora"
 target = "./merged"
 

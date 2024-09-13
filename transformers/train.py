@@ -1,8 +1,12 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
 from trl import SFTTrainer
 from datasets import load_dataset
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env file
+load_dotenv()
 
-model_path = "./base"
+model_path =  os.getenv('BASE_MODEL')
 fine_tuned_path = "./trained"
 data_path = "./data"
 
