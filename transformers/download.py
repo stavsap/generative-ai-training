@@ -1,7 +1,6 @@
 from huggingface_hub import snapshot_download
 from dotenv import load_dotenv
 import os
-# Load environment variables from .env file
 load_dotenv()
 
 token = os.getenv('HF_TOKEN')

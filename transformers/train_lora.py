@@ -3,7 +3,6 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from datasets import load_dataset
 from dotenv import load_dotenv
 import os
-# Load environment variables from .env file
 load_dotenv()
 
 model_path =  os.getenv('BASE_MODEL')

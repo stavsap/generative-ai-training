@@ -1,10 +1,8 @@
 import os
 import pandas as pd
-
 from datasets import Dataset
 from transformers import AutoTokenizer
 from dotenv import load_dotenv
-# Load environment variables from .env file
 load_dotenv()
 
 model_path = os.getenv('BASE_MODEL')

@@ -1,7 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from dotenv import load_dotenv
 import os
-# Load environment variables from .env file
 load_dotenv()
 
 model_path = os.getenv('BASE_MODEL')
