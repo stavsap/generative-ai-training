@@ -61,3 +61,8 @@ ollama run manual:1
 https://medium.com/the-ai-forum/instruction-fine-tuning-gemma-2b-on-medical-reasoning-and-convert-the-finetuned-model-into-gguf-844191f8d329
 
 https://huggingface.co/google/gemma-7b
+
+Download AutoGPTQ from github: git clone https://github.com/PanQiWei/AutoGPTQ.git && cd AutoGPTQ
+Build from setup.py:
+python setup.py build
+python setup.py install
