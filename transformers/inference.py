@@ -1,51 +1,65 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from peft import PeftModelForCausalLM,PeftConfig
 from dotenv import load_dotenv
 import os
+import torch
+
 load_dotenv()
 
 model_path = os.getenv('BASE_MODEL')
+adapter_path = "./lora/checkpoint-140"
 
-quantize_config = BitsAndBytesConfig(load_in_4bit=True)
+try:
+    # Optionally enable quantization
+    quantize_config = BitsAndBytesConfig(load_in_4bit=True)
 
-model = AutoModelForCausalLM.from_pretrained(model_path,
-                                             device_map="cuda",
-                                             trust_remote_code=False,
-                                             revision="main",
-                                             quantization_config=quantize_config)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        device_map="cuda",
+        trust_remote_code=False,
+        revision="main",
+        # quantization_config=quantize_config
+    )
 
-tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
 
-# https://huggingface.co/docs/transformers/main/en/chat_templating
 
-chat = [
-    {"role": "user", "content": "What is art?"},
-    {"role": "assistant", "content": "It is whatever you want it to be"},
-]
+    model = PeftModelForCausalLM.from_pretrained(model, adapter_path)
+    # model = model.merge_and_unload()
+    model.eval()  # Set the model to evaluation mode
 
-print(tokenizer.apply_chat_template(chat, tokenize=False))
+    # Prepare input
+    chat = [
+        {"role": "user", "content": "What is Mojo?"},
+    ]
+    input_text = tokenizer.apply_chat_template(chat, tokenize=False)
 
-print(tokenizer.get_chat_template())
+    # Tokenize input
+    input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 
-# model.eval()
+    print("Generating...")
 
-input_text = "What is Light?"
+    # Generate output
+    with torch.no_grad():
+        outputs = model.generate(
+            **input_ids,
+            # max_new_tokens=26,
+            do_sample=False,
+            # top_p=0.95,
+            # top_k=50,
+            temperature=0.1,
+            num_return_sequences=1,
+            eos_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer.pad_token_id
+        )
 
-input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
-print("generating...")
-outputs = model.generate(**input_ids, max_new_tokens=256)
+    # Decode and print the output
+    generated_text = tokenizer.decode(outputs[0], clean_up_tokenization_spaces=True, skip_special_tokens=True)
+    print(generated_text)
 
-print(tokenizer.decode(outputs[0], clean_up_tokenization_spaces=True, skip_special_tokens=True))
+except Exception as e:
+    print(f"An error occurred: {str(e)}")
 
-# import torch
-# from transformers import pipeline
-#
-# pipe = pipeline(
-#     "text-generation",
-#     model=model_path,
-#     device="cuda",  # replace with "mps" to run on a Mac device
-# )
-#
-# text = "Once upon a time,"
-# outputs = pipe(text, max_new_tokens=256)
-# response = outputs[0]["generated_text"]
-# print(response)
+finally:
+    # Clear CUDA cache
+    torch.cuda.empty_cache()
